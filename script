@@ -1,0 +1,139 @@
+#!/bin/bash
+
+# IMPORTANT: THIS REQUIRES YOU TO HAVE DISCORD INSTALLED AND CONFIGURED FIRST
+
+
+
+# Fuction to read password and store it in a variable
+function pass {
+
+	password=""
+	read -p "Password: " password
+}
+
+# Install script that copies the file to /usr/bin
+function install {
+
+SOURCE=${BASH_SOURCE[0]}
+DIR=$( cd -P "$( dirname "$SOURCE" )" >/dev/null 2>&1 && pwd )
+me="$(basename "$(test -L "$0" && readlink "$0" || echo "$0")")"
+DIFF=$(diff /usr/bin/discord-update $SOURCE)
+if test -f /usr/bin/discord-update; then
+	if [ "$DIFF" != "" ]; then
+		echo "Older/Newer version found"
+	else
+		echo "This is the same version of the script" && exit 4
+	fi
+
+else
+	read -p "Install?(Y/N): " confirm && [[ $confirm == [yY] || $confirm == [yY][eE][sS] ]] || exit 1
+fi
+echo "Script running from: $DIR/$me"
+pass
+echo $password | sudo -S cp $SOURCE /usr/bin/discord-update
+if test $? -ne 0; then
+			echo "No password was given" && exit 3
+		else
+			echo "Installed"
+		fi
+}
+
+
+# Function to ask user which version if discord theyre downloading
+function versiontest {
+	
+	version=""
+	echo "If you dont know the version, Launch the unupdated app and it will tell you."
+	read -p "Version:" version
+}
+
+# Main function of script
+function main {
+
+	chkdir
+	versiontest
+	if test -f $HOME/.cache/discord-updates/discord-${version}.tar.gz; then
+		echo "File exists."
+	else
+		echo "File does not exist. Downloading tar.gz package"
+		wget --read-timeout 30 -P $HOME/.cache/discord-updates https://stable.dl2.discordapp.net/apps/linux/${version}/discord-${version}.tar.gz
+		if test $? -ne 0; then
+			echo "Failed to download from web. Aborting..." && exit 2
+		else
+			echo "Downloaded files. Unzipping to /opt" 
+		fi
+	fi
+
+	pass
+	echo $password | sudo -S tar -xvzf $HOME/.cache/discord-updates/discord-${version}.tar.gz -C /opt
+	if test $? -ne 0; then
+		echo "Update to unzip. Retrying from web"
+		rm -rf $HOME/.cache/discord-updates/discord-${version}.tar.gz 
+		wget --read-timeout 30 -P $HOME/.cache/discord-updates https://stable.dl2.discordapp.net/apps/linux/${version}/discord-${version}.tar.gz
+		echo $password | sudo -S tar -xvzf $HOME/.cache/discord-updates/discord-${version}.tar.gz -C /opt
+		echo "Discord updated. If you intend on using vencord then run the installer after opening discord once at least"
+	else
+		echo "Discord updated. If you intend on using vencord then run the installer after opening discord once at least"
+	fi
+	read -p "Run clean function to delete cache? (Y/N): " confirm && [[ $confirm == [yY] || $confirm == [yY][eE][sS] ]] || exit 1
+	clean
+
+}
+
+# Function that check if the directory for downloading files exists if not it else makes one
+function chkdir {
+
+	if test -d $HOME/.cache/discord-updates; then
+		echo "discord-updates directory exists"
+	else
+		echo "Discord updates directory does not exist. making directory in $HOME/.cache/discord-updates"
+		mkdir $HOME/.cache/discord-updates
+	fi
+}
+
+# Function to run the install script of vencord
+function vencord {
+
+	read -p "Continue with vencord installer? (Y/N): " confirm && [[ $confirm == [yY] || $confirm == [yY][eE][sS] ]] || exit 1
+	sh -c "$(curl -sS https://raw.githubusercontent.com/Vendicated/VencordInstaller/main/install.sh)"
+}
+
+# Function for help command
+function helpprompt {
+
+	printf "  Usage:\n\n  Running standalone updates discord.\n\n  --vencord, -v\n    Runs the vencord installer\n\n  -h\n    Shows help prompt\n\n  --clean\n    Deletes all discord tar.gz packages in $HOME/discord-updates if directory is found\n\n  Install\n    Copies to script to /usr/bin so it can be easy run on terminal"
+}
+
+# Function for cleaning the directory where files are installed
+function clean {
+
+	if test -d $HOME/.cache/discord-updates; then
+		if test -f $HOME/.cache/discord-updates/discord-*.tar.gz; then
+			echo "Found packages:"
+			find $HOME/.cache/discord-updates -name 'discord-*.tar.gz'
+			read -p "Delete all packages? (Y/N): " confirm && [[ $confirm == [yY] || $confirm == [yY][eE][sS] ]] || exit 1
+			find $HOME/.cache/discord-updates/ -name "discord*.tar.gz" -exec rm -rf {} \;
+		else
+			echo "No discord tars found"
+		fi
+	else
+		echo "$HOME/.cache/discord-updates not found. Aborting..."
+	fi
+}
+
+
+# YANDERE DEV MOMENT
+# Check to see which option has been used or if no option
+if  [[ $1 = "" ]]; then
+	main
+elif [[ $1 = "--vencord" ]]; then
+	vencord
+elif [[ $1 = "-v" ]]; then
+	vencord
+elif [[ $1 = "-h" ]]; then
+	helpprompt
+elif [[ $1 = "--clean" ]]; then
+	clean
+elif [[ $1 = "install" ]]; then
+	install
+fi
