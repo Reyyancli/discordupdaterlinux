@@ -67,7 +67,7 @@ function main {
 	pass
 	echo $password | sudo -S tar -xvzf $HOME/.cache/discord-updates/discord-${version}.tar.gz -C /opt
 	if test $? -ne 0; then
-		echo "Update to unzip. Retrying from web"
+		echo "Unable to unzip. Retrying from web"
 		rm -rf $HOME/.cache/discord-updates/discord-${version}.tar.gz 
 		wget --read-timeout 30 -P $HOME/.cache/discord-updates https://stable.dl2.discordapp.net/apps/linux/${version}/discord-${version}.tar.gz
 		echo $password | sudo -S tar -xvzf $HOME/.cache/discord-updates/discord-${version}.tar.gz -C /opt
