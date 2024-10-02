@@ -4,11 +4,11 @@
 
 
 
-# Fuction to read password and store it in a variable
+# Function to read password and store it in a variable
 function pass {
 
 	password=""
-	read -p "Password: " password
+	read -sp "Password: " password
 }
 
 # Install script that copies the file to /usr/bin
