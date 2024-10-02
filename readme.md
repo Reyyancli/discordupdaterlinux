@@ -15,5 +15,7 @@ sudo chmod +x <filename or filepath>
 ```
 ### Available commands
 `-h` : Shows the available options
+
 `-v, --vencord` : Runs the vencord installer script
+
 `--clean` : Clean the cache built up in `~/.config/discord-updates`. Does not delete anything else that may be in the directory unless specifically named `discord-(anything here).tar.gz`
