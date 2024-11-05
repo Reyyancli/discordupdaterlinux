@@ -109,11 +109,12 @@ function helpprompt {
 function clean {
 
 	if test -d $HOME/.cache/discord-updates; then
-		if test -f $HOME/.cache/discord-updates/discord-*.tar.gz; then
+		if [ `ls -1 $HOME/.cache/discord-updates/discord-*.tar.gz 2>/dev/null | wc -l ` -gt 0 ]; then
 			echo "Found packages:"
-			find $HOME/.cache/discord-updates -name 'discord-*.tar.gz'
+			find $HOME/.cache/discord-updates -name "discord-*.tar.gz"
 			read -p "Delete all packages? (Y/N): " confirm && [[ $confirm == [yY] || $confirm == [yY][eE][sS] ]] || exit 1
 			find $HOME/.cache/discord-updates/ -name "discord*.tar.gz" -exec rm -rf {} \;
+			echo "\nDone!"
 		else
 			echo "No discord tars found"
 		fi
@@ -138,3 +139,4 @@ elif [[ $1 = "--clean" ]]; then
 elif [[ $1 = "install" ]]; then
 	install
 fi
+
