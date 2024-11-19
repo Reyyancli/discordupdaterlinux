@@ -6,7 +6,7 @@ The script caches the downloaded tar.gz files in `~/.config/discord-updates`
 #### Note
 This is my first actual script so if something is not right or not working, please open an issue about it
 ## Usage
-You can run the script standalone and it will update your discord
+You can run the script standalone and it will update your discord.
 If you run `./script install` it will install the script *(put it in the `/usr/bin/` directory for easy access)*. After that you can launch it from the terminal using `discord-update`
 
 To run the script you may need to add executable permissions
